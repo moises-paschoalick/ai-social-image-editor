@@ -4,10 +4,12 @@ import Toolbar from '../../components/Toolbar';
 import Header from "../../components/Header";
 import Workspace from "../../components/Workspace";
 import { useCanvas } from "../../hooks/useCanvas";
+import { generateTextElements } from "../../ai/skills";
 
 const InstagramPostGenerator = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(instagramTemplates.templates[0]);
   const [isLoading, setIsLoading] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1); // 1 = 100%
   const [texts, setTexts] = useState([
     {
       id: 1,
@@ -15,8 +17,8 @@ const InstagramPostGenerator = () => {
       fontSize: 60,
       fontFamily: "Arial",
       textColor: "#000000",
-      position: { 
-        x: 540, 
+      position: {
+        x: 540,
         y: 540,
         scaleX: 1,
         scaleY: 1,
@@ -30,7 +32,7 @@ const InstagramPostGenerator = () => {
   const [gradientEnd, setGradientEnd] = useState(selectedTemplate.style.gradientEnd);
 
   const updateText = (textId, updates) => {
-    setTexts(texts.map(text => 
+    setTexts(texts.map(text =>
       text.id === textId ? { ...text, ...updates } : text
     ));
   };
@@ -41,6 +43,7 @@ const InstagramPostGenerator = () => {
     backgroundColor,
     gradientStart,
     gradientEnd,
+    selectedTextId,
     setSelectedTextId,
     updateText,
   });
@@ -63,12 +66,26 @@ const InstagramPostGenerator = () => {
       position: { x: 540, y: 540, scaleX: 1, scaleY: 1 }
     };
 
+    // Deselect current text so Fabric knows to pick up the new one cleanly
+    setSelectedTextId(null);
+    if (fabricCanvas.current) {
+      fabricCanvas.current.discardActiveObject();
+    }
+
     setTexts([...texts, newText]);
-    setSelectedTextId(newId);
+
+    // Set the new text as selected in the next tick after state updates
+    setTimeout(() => {
+      setSelectedTextId(newId);
+    }, 0);
   };
 
   const downloadImage = () => {
     if (!fabricCanvas.current) return;
+
+    // Deselect before downloading to remove the bounding box
+    fabricCanvas.current.discardActiveObject();
+    fabricCanvas.current.renderAll();
 
     const dataURL = fabricCanvas.current.toDataURL({ format: 'png' });
     const link = document.createElement('a');
@@ -77,12 +94,17 @@ const InstagramPostGenerator = () => {
     link.click();
   };
 
+  const handleGenerateFromPrompt = (prompt) => {
+    const newTexts = generateTextElements(prompt);
+    setTexts(newTexts);
+  };
+
   const selectedText = texts.find(t => t.id === selectedTextId);
 
   return (
     <div className="instagram-generator">
       <Header />
-      
+
       <div className="generator-main">
         <Toolbar
           onAddText={addNewText}
@@ -102,9 +124,14 @@ const InstagramPostGenerator = () => {
           onFontSizeChange={(value) => updateText(selectedTextId, { fontSize: value })}
           onFontFamilyChange={(value) => updateText(selectedTextId, { fontFamily: value })}
           onTextColorChange={(value) => updateText(selectedTextId, { textColor: value })}
+          onGenerateFromPrompt={handleGenerateFromPrompt}
         />
-        
-        <Workspace canvasRef={canvasRef} />
+
+        <Workspace
+          canvasRef={canvasRef}
+          zoomLevel={zoomLevel}
+          onZoomChange={setZoomLevel}
+        />
       </div>
     </div>
   );
