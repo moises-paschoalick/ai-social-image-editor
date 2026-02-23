@@ -31,57 +31,60 @@ const Toolbar = ({
   };
 
   return (
-    <div className="ribbon-toolbar">
-      <div className="ribbon-tabs">
+    <div className="sidebar-toolbar">
+      <div className="sidebar-tabs">
         <button
-          className={`ribbon-tab ${activeMenu === 'ai' ? 'active' : ''}`}
+          className={`sidebar-tab ${activeMenu === 'ai' ? 'active' : ''}`}
           onClick={() => toggleMenu('ai')}
+          title="Gerar com AI"
         >
-          <span>✨ AI Prompt</span>
+          <span className="icon">✨</span>
         </button>
         <button
-          className={`ribbon-tab ${activeMenu === 'templates' ? 'active' : ''}`}
+          className={`sidebar-tab ${activeMenu === 'templates' ? 'active' : ''}`}
           onClick={() => toggleMenu('templates')}
+          title="Templates"
         >
-          <span>📝 Templates</span>
+          <span className="icon">📝</span>
         </button>
         <button
-          className={`ribbon-tab ${activeMenu === 'background' ? 'active' : ''}`}
+          className={`sidebar-tab ${activeMenu === 'background' ? 'active' : ''}`}
           onClick={() => toggleMenu('background')}
+          title="Fundo"
         >
-          <span>🎨 Fundo</span>
+          <span className="icon">🎨</span>
         </button>
         <button
-          className={`ribbon-tab ${activeMenu === 'text' ? 'active' : ''} ${!selectedText ? 'disabled' : ''}`}
+          className={`sidebar-tab ${activeMenu === 'text' ? 'active' : ''} ${!selectedText ? 'disabled' : ''}`}
           onClick={() => selectedText && toggleMenu('text')}
           disabled={!selectedText}
-          title={!selectedText ? "Selecione um texto para editar" : ""}
+          title={!selectedText ? "Selecione um texto para editar" : "Editar Texto"}
         >
-          <span>Aa Editar Texto</span>
+          <span className="icon">Aa</span>
         </button>
 
-        <div className="ribbon-divider"></div>
+        <div className="sidebar-divider"></div>
 
         <button
-          className="ribbon-action primary"
+          className="sidebar-action primary"
           onClick={onAddText}
           disabled={isLoading}
+          title="Adicionar Texto"
         >
           <span className="icon">+</span>
-          <span>Adicionar Texto</span>
         </button>
 
         <button
-          className="ribbon-action"
+          className="sidebar-action"
           onClick={onDownload}
           disabled={isLoading}
+          title="Baixar Imagem"
         >
           <span className="icon">↓</span>
-          <span>{isLoading ? 'Baixando...' : 'Baixar Imagem'}</span>
         </button>
       </div>
 
-      {/* Floating Suspense Menus */}
+      {/* Floating Suspense Menus (Over Canvas) */}
       {activeMenu && (
         <div className="suspense-menu-container">
           <button className="suspense-close" onClick={() => setActiveMenu(null)}>×</button>

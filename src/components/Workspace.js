@@ -5,11 +5,10 @@ import ZoomController from './ZoomController';
 const Workspace = ({ canvasRef, zoomLevel, onZoomChange }) => {
   return (
     <div className="generator-workspace">
-      <div
-        className="canvas-wrapper"
-        style={{ transform: `scale(${zoomLevel})`, transition: 'transform 0.2s ease' }}
-      >
-        <Canvas canvasRef={canvasRef} />
+      <div className="viewport-crop">
+        <div className="canvas-wrapper">
+          <Canvas canvasRef={canvasRef} />
+        </div>
       </div>
 
       <ZoomController

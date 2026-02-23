@@ -1,25 +1,29 @@
 import React from 'react';
 
 const ZoomController = ({ zoomLevel, onZoomChange }) => {
-    const handleZoomIn = () => {
-        onZoomChange(Math.min(zoomLevel + 0.1, 3)); // Max 300%
-    };
-
-    const handleZoomOut = () => {
-        onZoomChange(Math.max(zoomLevel - 0.1, 0.2)); // Min 20%
+    const handleSliderChange = (e) => {
+        onZoomChange(parseFloat(e.target.value));
     };
 
     const handleResetZoom = () => {
-        onZoomChange(1);
+        onZoomChange(0.5); // Reset to default 50%
     };
 
     return (
         <div className="zoom-controller">
-            <button onClick={handleZoomOut} title="Diminuir Zoom">−</button>
-            <div className="zoom-level" onClick={handleResetZoom} title="Resetar Zoom">
+            <span className="zoom-level-text" onClick={handleResetZoom} title="Resetar para 50%">
                 {Math.round(zoomLevel * 100)}%
-            </div>
-            <button onClick={handleZoomIn} title="Aumentar Zoom">+</button>
+            </span>
+            <input
+                type="range"
+                className="zoom-slider"
+                min="0.1"
+                max="3"
+                step="0.05"
+                value={zoomLevel}
+                onChange={handleSliderChange}
+                title="Ajustar Zoom"
+            />
         </div>
     );
 };

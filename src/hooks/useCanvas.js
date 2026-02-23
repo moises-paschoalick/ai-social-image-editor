@@ -7,14 +7,14 @@ export const useCanvas = ({
   backgroundColor,
   gradientStart,
   gradientEnd,
-  selectedTextId, // <-- We need this to know what React thinks is selected
+  selectedTextId,
   setSelectedTextId,
   updateText,
+  zoomLevel, // <- New prop
 }) => {
   const canvasRef = useRef(null);
   const fabricCanvas = useRef(null);
 
-  // Keep a ref of the latest selectedTextId so the canvas rebuild can read it without depending on it
   const selectedTextIdRef = useRef(selectedTextId);
   useEffect(() => {
     selectedTextIdRef.current = selectedTextId;
@@ -29,7 +29,40 @@ export const useCanvas = ({
       width: 1080,
       height: 1080,
       backgroundColor: backgroundColor,
+      selection: true,
     });
+
+    // --- Panning Logic (Alt + Drag or Space + Drag) ---
+    fabricCanvas.current.on('mouse:down', function (opt) {
+      const evt = opt.e;
+      if (evt.altKey || evt.shiftKey) {
+        this.isDragging = true;
+        this.selection = false;
+        this.lastPosX = evt.clientX;
+        this.lastPosY = evt.clientY;
+      }
+    });
+
+    fabricCanvas.current.on('mouse:move', function (opt) {
+      if (this.isDragging) {
+        const e = opt.e;
+        let vpt = this.viewportTransform;
+        vpt[4] += e.clientX - this.lastPosX;
+        vpt[5] += e.clientY - this.lastPosY;
+        this.requestRenderAll();
+        this.lastPosX = e.clientX;
+        this.lastPosY = e.clientY;
+      }
+    });
+
+    fabricCanvas.current.on('mouse:up', function (opt) {
+      // on mouse up we want to recalculate new interaction
+      // for all objects, so we call setViewportTransform
+      this.setViewportTransform(this.viewportTransform);
+      this.isDragging = false;
+      this.selection = true;
+    });
+    // ----------------------------------------------------
 
     fabricCanvas.current.on('selection:created', (e) => {
       const selectedObject = e.selected[0];
@@ -52,8 +85,7 @@ export const useCanvas = ({
     });
 
     fabricCanvas.current.on('selection:cleared', (e) => {
-      // Prevent clearing if we are just re-rendering
-      if (!e.e) return; // e.e is the original mouse event. If it's missing, it's programmatic
+      if (!e.e) return;
       setSelectedTextId(null);
     });
 
@@ -106,6 +138,7 @@ export const useCanvas = ({
     fabricCanvas.current.add(backgroundRect);
     fabricCanvas.current.sendToBack(backgroundRect);
 
+    // Apply texts
     texts.forEach((textObj) => {
       const fabricText = new fabric.Text(textObj.text, {
         left: textObj.position.x,
@@ -138,11 +171,15 @@ export const useCanvas = ({
       });
       fabricCanvas.current.add(fabricText);
 
-      // Restore selection based on the React state ref when canvas is rebuilt
       if (textObj.id === selectedTextIdRef.current) {
         fabricCanvas.current.setActiveObject(fabricText);
       }
     });
+
+    // Apply init zoom
+    if (zoomLevel) {
+      fabricCanvas.current.setZoom(zoomLevel);
+    }
 
     fabricCanvas.current.renderAll();
 
@@ -152,9 +189,20 @@ export const useCanvas = ({
         fabricCanvas.current = null;
       }
     };
-  }, [texts, selectedTemplate, backgroundColor, gradientStart, gradientEnd]); // Removed selectedTextId
+  }, [texts, selectedTemplate, backgroundColor, gradientStart, gradientEnd]); // Removed zoomLevel from rebuild dependency
 
-  // Secondary effect to handle purely selection changes from outside (like clicking "Add Text")
+  // Effect to handle programmatic Native Zoom updates without rebuilding
+  useEffect(() => {
+    if (fabricCanvas.current && zoomLevel) {
+      // Zoom relative to center
+      fabricCanvas.current.zoomToPoint(
+        new fabric.Point(fabricCanvas.current.width / 2, fabricCanvas.current.height / 2),
+        zoomLevel
+      );
+    }
+  }, [zoomLevel]);
+
+  // Secondary effect to handle purely selection changes
   useEffect(() => {
     if (fabricCanvas.current) {
       const activeObject = fabricCanvas.current.getActiveObject();
@@ -164,7 +212,6 @@ export const useCanvas = ({
         if (selectedTextId === null) {
           fabricCanvas.current.discardActiveObject();
         } else {
-          // Find the object and select it
           const objectToSelect = fabricCanvas.current.getObjects('text').find(obj => obj.data?.id === selectedTextId);
           if (objectToSelect) {
             fabricCanvas.current.setActiveObject(objectToSelect);
