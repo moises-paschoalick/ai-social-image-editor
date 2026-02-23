@@ -7,11 +7,18 @@ export const useCanvas = ({
   backgroundColor,
   gradientStart,
   gradientEnd,
+  selectedTextId, // <-- We need this to know what React thinks is selected
   setSelectedTextId,
   updateText,
 }) => {
   const canvasRef = useRef(null);
   const fabricCanvas = useRef(null);
+
+  // Keep a ref of the latest selectedTextId so the canvas rebuild can read it without depending on it
+  const selectedTextIdRef = useRef(selectedTextId);
+  useEffect(() => {
+    selectedTextIdRef.current = selectedTextId;
+  }, [selectedTextId]);
 
   useEffect(() => {
     if (fabricCanvas.current) {
@@ -28,7 +35,9 @@ export const useCanvas = ({
       const selectedObject = e.selected[0];
       if (selectedObject && selectedObject.type === 'text') {
         const textId = selectedObject.data?.id;
-        setSelectedTextId(textId);
+        if (textId !== selectedTextIdRef.current) {
+          setSelectedTextId(textId);
+        }
       }
     });
 
@@ -36,8 +45,16 @@ export const useCanvas = ({
       const selectedObject = e.selected[0];
       if (selectedObject && selectedObject.type === 'text') {
         const textId = selectedObject.data?.id;
-        setSelectedTextId(textId);
+        if (textId !== selectedTextIdRef.current) {
+          setSelectedTextId(textId);
+        }
       }
+    });
+
+    fabricCanvas.current.on('selection:cleared', (e) => {
+      // Prevent clearing if we are just re-rendering
+      if (!e.e) return; // e.e is the original mouse event. If it's missing, it's programmatic
+      setSelectedTextId(null);
     });
 
     fabricCanvas.current.on('object:modified', (e) => {
@@ -120,17 +137,12 @@ export const useCanvas = ({
         },
       });
       fabricCanvas.current.add(fabricText);
-    });
 
-    if (texts.length > 0) {
-      const lastText = texts[texts.length - 1];
-      const fabricText = fabricCanvas.current
-        .getObjects('text')
-        .find((obj) => obj.data?.id === lastText.id);
-      if (fabricText) {
+      // Restore selection based on the React state ref when canvas is rebuilt
+      if (textObj.id === selectedTextIdRef.current) {
         fabricCanvas.current.setActiveObject(fabricText);
       }
-    }
+    });
 
     fabricCanvas.current.renderAll();
 
@@ -140,7 +152,28 @@ export const useCanvas = ({
         fabricCanvas.current = null;
       }
     };
-  }, [texts, selectedTemplate, backgroundColor, gradientStart, gradientEnd]);
+  }, [texts, selectedTemplate, backgroundColor, gradientStart, gradientEnd]); // Removed selectedTextId
+
+  // Secondary effect to handle purely selection changes from outside (like clicking "Add Text")
+  useEffect(() => {
+    if (fabricCanvas.current) {
+      const activeObject = fabricCanvas.current.getActiveObject();
+      const currentActiveId = activeObject?.data?.id;
+
+      if (currentActiveId !== selectedTextId) {
+        if (selectedTextId === null) {
+          fabricCanvas.current.discardActiveObject();
+        } else {
+          // Find the object and select it
+          const objectToSelect = fabricCanvas.current.getObjects('text').find(obj => obj.data?.id === selectedTextId);
+          if (objectToSelect) {
+            fabricCanvas.current.setActiveObject(objectToSelect);
+          }
+        }
+        fabricCanvas.current.requestRenderAll();
+      }
+    }
+  }, [selectedTextId]);
 
   return { canvasRef, fabricCanvas };
 };
