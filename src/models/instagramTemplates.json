@@ -1,0 +1,40 @@
+{
+  "templates": [
+    {
+      "id": "instagram-1",
+      "name": "Instagram - Gradiente Roxo",
+      "style": {
+        "backgroundColor": "#ffffff",
+        "textColor": "#000000",
+        "gradientStart": "purple",
+        "gradientEnd": "#D8BFD8",
+        "fontSize": 60,
+        "fontFamily": "Arial"
+      }
+    },
+    {
+      "id": "instagram-2",
+      "name": "Instagram - Azul Moderno",
+      "style": {
+        "backgroundColor": "#f0f0f0",
+        "textColor": "#2c3e50",
+        "gradientStart": "#2c3e50",
+        "gradientEnd": "#3498db",
+        "fontSize": 48,
+        "fontFamily": "Helvetica"
+      }
+    },
+    {
+      "id": "instagram-3",
+      "name": "Instagram - Vermelho Energia",
+      "style": {
+        "backgroundColor": "#ffffff",
+        "textColor": "#e74c3c",
+        "gradientStart": "#e74c3c",
+        "gradientEnd": "#f39c12",
+        "fontSize": 52,
+        "fontFamily": "Roboto"
+      }
+    }
+  ]
+} 

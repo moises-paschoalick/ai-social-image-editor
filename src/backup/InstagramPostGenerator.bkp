@@ -1,0 +1,88 @@
+import React, { useEffect, useRef } from "react";
+import { fabric } from "fabric";
+
+const InstagramPostGenerator = () => {
+  const canvasRef = useRef(null);
+  const fabricCanvas = useRef(null);
+
+  useEffect(() => {
+    // Criar o Fabric Canvas
+    fabricCanvas.current = new fabric.Canvas(canvasRef.current, {
+      width: 1080,
+      height: 1080,
+      backgroundColor: "#fff",
+    });
+
+    // Criar gradiente
+    const pattern = new fabric.Pattern({
+      source: createGradient(),
+      repeat: "no-repeat",
+    });
+
+    // Criar retângulo com fundo gradiente
+    const rect = new fabric.Rect({
+      left: 50,
+      top: 50,
+      width: 300,
+      height: 200,
+      fill: pattern,
+      rx: 20,
+      ry: 20,
+    });
+
+    fabricCanvas.current.add(rect);
+
+    // Criar texto
+    const text = new fabric.Text("Texto para Instagram", {
+      left: 100,
+      top: 300,
+      fontSize: 60,
+      fill: "black",
+      fontFamily: "Arial",
+    });
+
+    fabricCanvas.current.add(text);
+
+    return () => {
+      fabricCanvas.current.dispose();
+    };
+  }, []);
+
+  // Criar um gradiente usando um canvas auxiliar
+  const createGradient = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 300;
+    canvas.height = 200;
+    const ctx = canvas.getContext("2d");
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, "purple");
+    gradient.addColorStop(1, "#D8BFD8"); // Cor corrigida
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 300, 200);
+
+    return canvas;
+  };
+
+  // Função para baixar a imagem
+  const downloadImage = () => {
+    if (!fabricCanvas.current) return;
+
+    const dataURL = fabricCanvas.current.toDataURL({ format: "png" });
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.download = "instagram-post.png";
+    link.click();
+  };
+
+  return (
+    <div>
+      <h2>Gerador de Posts para Instagram</h2>
+      <canvas ref={canvasRef}></canvas>
+      <button onClick={downloadImage}>Baixar Imagem</button>
+    </div>
+  );
+};
+
+export default InstagramPostGenerator;

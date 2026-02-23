@@ -1,0 +1,56 @@
+{
+  "templates": [
+    {
+      "id": "modelo-1",
+      "name": "Modelo 1 - Original",
+      "designId": "template-1-id",
+      "style": {
+        "backgroundColor": "#ffffff",
+        "textColor": "#000000",
+        "gradientStart": "purple",
+        "gradientEnd": "#D8BFD8",
+        "fontSize": 60,
+        "fontFamily": "Arial"
+      }
+    },
+    {
+      "id": "modelo-2",
+      "name": "Modelo 2 - Alternativo",
+      "designId": "template-2-id",
+      "style": {
+        "backgroundColor": "#f0f0f0",
+        "textColor": "#2c3e50",
+        "gradientStart": "#2c3e50",
+        "gradientEnd": "#3498db",
+        "fontSize": 48,
+        "fontFamily": "Helvetica"
+      }
+    },
+    {
+      "id": "modelo-3",
+      "name": "Modelo 3 - Moderno",
+      "designId": "template-3-id",
+      "style": {
+        "backgroundColor": "#ffffff",
+        "textColor": "#e74c3c",
+        "gradientStart": "#e74c3c",
+        "gradientEnd": "#f39c12",
+        "fontSize": 52,
+        "fontFamily": "Roboto"
+      }
+    },
+    {
+      "id": "modelo-4",
+      "name": "Modelo 4 - Minimalista",
+      "designId": "template-4-id",
+      "style": {
+        "backgroundColor": "#ffffff",
+        "textColor": "#34495e",
+        "gradientStart": "#34495e",
+        "gradientEnd": "#95a5a6",
+        "fontSize": 56,
+        "fontFamily": "Open Sans"
+      }
+    }
+  ]
+} 
