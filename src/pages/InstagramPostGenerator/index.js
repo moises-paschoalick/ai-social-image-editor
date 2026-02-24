@@ -103,10 +103,10 @@ const InstagramPostGenerator = () => {
   const selectedText = texts.find(t => t.id === selectedTextId);
 
   return (
-    <div className="instagram-generator">
+    <div className="flex flex-col min-h-screen bg-darkBg text-white w-full m-0 p-0">
       <Header />
 
-      <div className="generator-main">
+      <div className="flex flex-1 flex-row overflow-hidden relative bg-darkBg">
         <Toolbar
           onAddText={addNewText}
           onDownload={downloadImage}
