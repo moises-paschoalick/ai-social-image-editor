@@ -194,9 +194,10 @@ export const useCanvas = ({
   // Effect to handle programmatic Native Zoom updates without rebuilding
   useEffect(() => {
     if (fabricCanvas.current && zoomLevel) {
-      // Zoom relative to center
+      // Since we center the canvas via CSS transform origin, the fabric zoom point needs to be the top-left (0,0)
+      // so it grows outwards from its own bounds rather than double-centering.
       fabricCanvas.current.zoomToPoint(
-        new fabric.Point(fabricCanvas.current.width / 2, fabricCanvas.current.height / 2),
+        new fabric.Point(0, 0),
         zoomLevel
       );
     }
