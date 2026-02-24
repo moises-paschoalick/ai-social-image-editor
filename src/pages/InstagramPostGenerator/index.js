@@ -9,7 +9,7 @@ import { generateTextElements } from "../../ai/skills";
 const InstagramPostGenerator = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(instagramTemplates.templates[0]);
   const [isLoading, setIsLoading] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(0.5); // 0.5 = 50%
+  const [zoomLevel, setZoomLevel] = useState(1); // 1 = 100%
   const [texts, setTexts] = useState([
     {
       id: 1,

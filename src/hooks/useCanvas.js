@@ -176,11 +176,6 @@ export const useCanvas = ({
       }
     });
 
-    // Apply init zoom
-    if (zoomLevel) {
-      fabricCanvas.current.setZoom(zoomLevel);
-    }
-
     fabricCanvas.current.renderAll();
 
     return () => {
@@ -189,19 +184,8 @@ export const useCanvas = ({
         fabricCanvas.current = null;
       }
     };
-  }, [texts, selectedTemplate, backgroundColor, gradientStart, gradientEnd]); // Removed zoomLevel from rebuild dependency
+  }, [texts, selectedTemplate, backgroundColor, gradientStart, gradientEnd]);
 
-  // Effect to handle programmatic Native Zoom updates without rebuilding
-  useEffect(() => {
-    if (fabricCanvas.current && zoomLevel) {
-      // Since we center the canvas via CSS transform origin, the fabric zoom point needs to be the top-left (0,0)
-      // so it grows outwards from its own bounds rather than double-centering.
-      fabricCanvas.current.zoomToPoint(
-        new fabric.Point(0, 0),
-        zoomLevel
-      );
-    }
-  }, [zoomLevel]);
 
   // Secondary effect to handle purely selection changes
   useEffect(() => {
